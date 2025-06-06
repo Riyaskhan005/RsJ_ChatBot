@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>RsJ WhatsApp ChatBot</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">RsJ ChatBot</div>
+    <div id="chat-box" class="chat-box"></div>
+    <div class="chat-input-area">
+      <input type="text" id="user-input" placeholder="Type a message" autocomplete="off">
+      <button id="send-btn">➤</button>
+    </div>
+  </div>
+
+  <script>
+    function appendMessage(sender, message, className) {
+      $("#chat-box").append(`
+        <div class="message-row ${className}">
+          <div class="message-bubble">
+            <span class="sender">${sender}</span><br>${message}
+          </div>
+        </div>
+      `);
+      $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
+    }
+
+    $("#send-btn").click(function () {
+      const userMessage = $("#user-input").val().trim();
+      if (!userMessage) return;
+
+      appendMessage("You", userMessage, "user-msg");
+      $("#user-input").val("");
+      appendMessage("RsJ", "<span class='typing'>...</span>", "bot-msg loading");
+
+      $.ajax({
+        url: "/ask",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({ message: userMessage }),
+        success: function (data) {
+          $(".loading").last().remove(); // Remove loader
+          appendMessage("RsJ", data.response, "bot-msg");
+        }
+      });
+    });
+
+    $("#user-input").keypress(function (e) {
+      if (e.which == 13) $("#send-btn").click();
+    });
+  </script>
+</body>
+</html>
