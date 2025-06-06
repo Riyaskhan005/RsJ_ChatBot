@@ -17,9 +17,19 @@ body {
   background-color: #800080;
   color: white;
   padding: 15px;
-  text-align: center;
+  text-align: left;
   font-size: 18px;
   font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.bot-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 .chat-box {
@@ -27,6 +37,10 @@ body {
   overflow-y: auto;
   padding: 15px;
   background-color: #ece5dd;
+  background-image: url("../static/images/BG.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
 }
 
 .message-row {
