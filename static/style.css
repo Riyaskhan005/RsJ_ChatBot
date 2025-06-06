@@ -14,7 +14,7 @@ body {
 }
 
 .chat-header {
-  background-color: #075e54;
+  background-color: #800080;
   color: white;
   padding: 15px;
   text-align: center;
@@ -55,9 +55,10 @@ body {
 }
 
 .user-msg .message-bubble {
-  background-color: #dcf8c6;
+  background-color: #967bb6;
   align-self: flex-end;
   border-bottom-right-radius: 0;
+  color: #f0f0f0;
 }
 
 .bot-msg {
@@ -85,7 +86,7 @@ body {
 }
 
 #send-btn {
-  background-color: #128c7e;
+  background-color: #800080;
   color: white;
   border: none;
   border-radius: 50%;
