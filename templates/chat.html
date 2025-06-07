@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>RsJ WhatsApp ChatBot</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" href="../static/style.css">
+  <script src="../static/js/jquery-3.6.0.min.js"></script>
 </head>
 <body>
   <div class="chat-container">
@@ -17,11 +17,25 @@
   </div>
 
   <script>
+    function getCurrentTime() {
+      const now = new Date();
+      let hours = now.getHours();
+      const minutes = now.getMinutes().toString().padStart(2, "0");
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12 || 12;
+      return `${hours}:${minutes} ${ampm}`;
+  }
     function appendMessage(sender, message, className) {
+       const time = getCurrentTime();
+       let tickIcon = "";
+
+      if (className === "user-msg") {
+        tickIcon = `<span class="double-tick">✔✔</span>`;
+      }
       $("#chat-box").append(`
         <div class="message-row ${className}">
           <div class="message-bubble">
-            <span class="sender">${sender}</span><br>${message}
+            <span class="sender">${sender}</span><br>${message}${tickIcon}<span class="time">${time}</span>
           </div>
         </div>
       `);

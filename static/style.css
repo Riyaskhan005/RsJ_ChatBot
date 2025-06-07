@@ -16,7 +16,7 @@ body {
 .chat-header {
   background-color: #800080;
   color: white;
-  padding: 15px;
+  padding: 10px;
   text-align: left;
   font-size: 18px;
   font-weight: bold;
@@ -66,6 +66,23 @@ body {
 
 .user-msg {
   justify-content: flex-end;
+}
+.double-tick {
+  float: right;
+  font-size: 10px;
+  color: #34B7F1; 
+  margin-left: 5px;
+  margin-top: 5px;
+}
+.user-msg .time {
+  font-size: 11px;
+  margin-left: 10px;
+  color: #c6aec6;
+}
+.bot-msg .time {
+  font-size: 11px;
+  margin-left: 10px;
+  color: #999;
 }
 
 .user-msg .message-bubble {
