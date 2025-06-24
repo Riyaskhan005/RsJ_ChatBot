@@ -5,6 +5,7 @@
   <title>RsJ WhatsApp ChatBot</title>
   <link rel="stylesheet" href="../static/style.css">
   <script src="../static/js/jquery-3.6.0.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
   <div class="chat-container">
@@ -12,9 +13,23 @@
     <div id="chat-box" class="chat-box"></div>
     <div class="chat-input-area">
       <input type="text" id="user-input" placeholder="Type a message" autocomplete="off">
-      <button id="send-btn">➤</button>
+        <!-- 🔊 Voice Bars (Initially hidden) -->
+        <div class="container" id="voice-bars" style="display: none;">
+          <div class="BarOne"></div>
+          <div class="BarTwo"></div>
+          <div class="BarThree"></div>
+          <div class="BarFour"></div>
+          <div class="BarFive"></div>
+          <div class="BarSix"></div>
+        </div>
+      <button id="send-btn"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+      <button id="mic-btn" class="mic-button">
+        <i id="mic-icon" class="fa fa-microphone" aria-hidden="true"></i>
+      </button>
     </div>
   </div>
+
+   <audio id="tts-audio" hidden></audio>
 
   <script>
   function getCurrentTime() {
@@ -42,6 +57,20 @@
     $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
   }
 
+  // 🗣️ Text-to-Speech
+  function speak(text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'en-US';
+    window.speechSynthesis.speak(utterance);
+  }
+
+  // ✅ Append and speak bot message
+  function appendBotMessage(sender, message, className) {
+    appendMessage(sender, message, className);
+    speak(message);
+  }
+
+  // 💬 Send button
   $("#send-btn").click(function () {
     const userMessage = $("#user-input").val().trim();
     if (!userMessage) return;
@@ -67,7 +96,7 @@
       data: JSON.stringify({ message: userMessage }),
       success: function (data) {
         $("#typing-loader").remove();
-        appendMessage("RsJ", data.response, "bot-msg");
+        appendBotMessage("RsJ", data.response, "bot-msg");
       }
     });
   });
@@ -75,6 +104,50 @@
   $("#user-input").keypress(function (e) {
     if (e.which == 13) $("#send-btn").click();
   });
+
+  let isListening = false;
+const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+recognition.lang = 'en-US';
+recognition.interimResults = false;
+recognition.maxAlternatives = 1;
+
+$("#mic-btn").click(() => {
+  if (!isListening) {
+    isListening = true;
+    $("#mic-icon").removeClass("fa-microphone").addClass("fa-stop");
+    $("#user-input").slideUp();
+    $("#voice-bars").slideDown();
+    recognition.start();
+  } else {
+    isListening = false;
+    $("#mic-icon").removeClass("fa-stop").addClass("fa-microphone");
+    $("#voice-bars").slideUp();
+    $("#user-input").slideDown();
+    recognition.stop();
+  }
+});
+
+recognition.onresult = function (event) {
+  const voiceInput = event.results[0][0].transcript;
+  $("#user-input").val(voiceInput);
+  $("#send-btn").click();
+
+  // Reset UI
+  $("#voice-bars").slideUp();
+  $("#user-input").slideDown();
+  $("#mic-icon").removeClass("fa-stop").addClass("fa-microphone");
+  isListening = false;
+};
+
+recognition.onerror = function (event) {
+  alert("Voice recognition error: " + event.error);
+
+  // Reset UI
+  $("#voice-bars").slideUp();
+  $("#user-input").slideDown();
+  $("#mic-icon").removeClass("fa-stop").addClass("fa-microphone");
+  isListening = false;
+};
 </script>
 </body>
 </html>
