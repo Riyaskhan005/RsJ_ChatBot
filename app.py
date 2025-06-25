@@ -5,7 +5,8 @@ from langchain_ollama import OllamaLLM
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
-llm = OllamaLLM(model="llama2")
+llm = OllamaLLM(model="mistral")
+llm.invoke("Hello") 
 output_parser = StrOutputParser()
 
 @app.route("/")
