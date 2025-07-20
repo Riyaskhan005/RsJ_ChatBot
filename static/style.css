@@ -119,7 +119,7 @@ body {
   outline: none;
 }
 
-#send-btn,#mic-btn {
+#send-btn,#mic-btn,#stop-btn {
   background-color: #800080;
   color: white;
   border: none;
@@ -177,12 +177,10 @@ body {
       }
     }
 #voice-bars {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: calc(100% - 90px); /* Leave space for buttons */
-  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
 }
 
 .container {
@@ -213,4 +211,10 @@ body {
   0%   { height: 30px; }
   50%  { height: 20px; }
   100% { height: 30px; }
+}
+.recording-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 10px;
 }

@@ -9,29 +9,39 @@
 </head>
 <body>
   <div class="chat-container">
-    <div class="chat-header"> <img src="../static/images/BOT.png" class="bot-avatar" alt="Bot Avatar">RsJ ChatBot</div>
+    <div class="chat-header"> <img src="../static/images/BOT.png" class="bot-avatar" alt="Bot Avatar">RsJ ChatBot <button id="mute-btn" title="Mute Voice" style="margin-left:auto; background:none; border:none; cursor:pointer; font-size:18px; color:white;">
+  <i id="mute-icon" class="fa fa-volume-up"></i>
+</button>
+</div>
     <div id="chat-box" class="chat-box"></div>
     <div class="chat-input-area">
-      <input type="text" id="user-input" placeholder="Type a message" autocomplete="off">
-        <!-- 🔊 Voice Bars (Initially hidden) -->
-        <div class="container" id="voice-bars" style="display: none;">
-          <div class="BarOne"></div>
-          <div class="BarTwo"></div>
-          <div class="BarThree"></div>
-          <div class="BarFour"></div>
-          <div class="BarFive"></div>
-          <div class="BarSix"></div>
-        </div>
-      <button id="send-btn"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
-      <button id="mic-btn" class="mic-button">
-        <i id="mic-icon" class="fa fa-microphone" aria-hidden="true"></i>
-      </button>
+  <input type="text" id="user-input" placeholder="Type a message" autocomplete="off">
+  <div class="recording-controls" style="display: none;">
+    <button id="stop-btn" class="mic-button">
+      <i class="fa fa-stop" aria-hidden="true"></i>
+    </button>
+    <div class="container" id="voice-bars">
+      <div class="BarOne"></div>
+      <div class="BarTwo"></div>
+      <div class="BarThree"></div>
+      <div class="BarFour"></div>
+      <div class="BarFive"></div>
+      <div class="BarSix"></div>
     </div>
+  </div>
+  <button id="send-btn"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+  <button id="mic-btn" class="mic-button">
+    <i id="mic-icon" class="fa fa-microphone" aria-hidden="true"></i>
+  </button>
+</div>
   </div>
 
    <audio id="tts-audio" hidden></audio>
 
   <script>
+    let isMuted = false;
+    const muteMode = "pause";
+    let currentUtterance = null;
   function getCurrentTime() {
     const now = new Date();
     let hours = now.getHours();
@@ -56,13 +66,51 @@
     `);
     $("#chat-box").scrollTop($("#chat-box")[0].scrollHeight);
   }
+$("#mute-btn").click(() => {
+  isMuted = !isMuted;
 
+  if (isMuted) {
+    if (muteMode === "cancel") {
+      speechSynthesis.cancel(); // ⛔ stop everything
+      currentUtterance = null;
+    } else if (muteMode === "pause" && speechSynthesis.speaking) {
+      speechSynthesis.pause(); // ⏸
+    }
+
+    $("#mute-icon").removeClass("fa-volume-up").addClass("fa-volume-mute");
+  } else {
+    if (muteMode === "pause" && speechSynthesis.paused) {
+      speechSynthesis.resume(); // ▶️
+    }
+
+    $("#mute-icon").removeClass("fa-volume-mute").addClass("fa-volume-up");
+  }
+});
   // 🗣️ Text-to-Speech
   function speak(text) {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-US';
-    window.speechSynthesis.speak(utterance);
+  if (muteMode === "cancel" && isMuted) return;
+
+  // If already paused and unmuted, resume
+  if (muteMode === "pause" && speechSynthesis.paused && !isMuted) {
+    speechSynthesis.resume();
+    return;
   }
+
+  // If something is still speaking, cancel it first
+  if (speechSynthesis.speaking || speechSynthesis.pending) {
+    speechSynthesis.cancel();
+  }
+
+  currentUtterance = new SpeechSynthesisUtterance(text);
+  currentUtterance.lang = 'en-US';
+
+  // Optional: Clear ref when done
+  currentUtterance.onend = () => {
+    currentUtterance = null;
+  };
+
+  speechSynthesis.speak(currentUtterance);
+}
 
   // ✅ Append and speak bot message
   function appendBotMessage(sender, message, className) {
@@ -110,42 +158,44 @@ const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognit
 recognition.lang = 'en-US';
 recognition.interimResults = false;
 recognition.maxAlternatives = 1;
-
 $("#mic-btn").click(() => {
   if (!isListening) {
     isListening = true;
-    $("#mic-icon").removeClass("fa-microphone").addClass("fa-stop");
+    $("#user-input").blur();
+    $("#mic-btn").hide();
+    $(".recording-controls").show();
     $("#user-input").slideUp();
-    $("#voice-bars").slideDown();
+    $("#send-btn").hide();
     recognition.start();
-  } else {
-    isListening = false;
-    $("#mic-icon").removeClass("fa-stop").addClass("fa-microphone");
-    $("#voice-bars").slideUp();
-    $("#user-input").slideDown();
-    recognition.stop();
   }
+});
+$("#stop-btn").click(() => {
+  console.log("Stop button clicked");
+  isListening = false;
+  $(".recording-controls").hide();
+  $("#mic-btn").show();
+  $("#user-input").slideDown();
+  $("#send-btn").show();
+  recognition.stop();
 });
 
 recognition.onresult = function (event) {
   const voiceInput = event.results[0][0].transcript;
   $("#user-input").val(voiceInput);
   $("#send-btn").click();
-
-  // Reset UI
-  $("#voice-bars").slideUp();
+  $(".recording-controls").hide();
+  $("#mic-btn").show();
   $("#user-input").slideDown();
-  $("#mic-icon").removeClass("fa-stop").addClass("fa-microphone");
+  $("#send-btn").show();
   isListening = false;
 };
 
 recognition.onerror = function (event) {
   alert("Voice recognition error: " + event.error);
-
-  // Reset UI
-  $("#voice-bars").slideUp();
+  $(".recording-controls").hide();
+  $("#mic-btn").show();
   $("#user-input").slideDown();
-  $("#mic-icon").removeClass("fa-stop").addClass("fa-microphone");
+  $("#send-btn").show();
   isListening = false;
 };
 </script>
