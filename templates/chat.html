@@ -71,16 +71,16 @@ $("#mute-btn").click(() => {
 
   if (isMuted) {
     if (muteMode === "cancel") {
-      speechSynthesis.cancel(); // ⛔ stop everything
+      speechSynthesis.cancel();
       currentUtterance = null;
     } else if (muteMode === "pause" && speechSynthesis.speaking) {
-      speechSynthesis.pause(); // ⏸
+      speechSynthesis.pause(); 
     }
 
     $("#mute-icon").removeClass("fa-volume-up").addClass("fa-volume-mute");
   } else {
     if (muteMode === "pause" && speechSynthesis.paused) {
-      speechSynthesis.resume(); // ▶️
+      speechSynthesis.resume();
     }
 
     $("#mute-icon").removeClass("fa-volume-mute").addClass("fa-volume-up");
@@ -90,21 +90,18 @@ $("#mute-btn").click(() => {
   function speak(text) {
   if (muteMode === "cancel" && isMuted) return;
 
-  // If already paused and unmuted, resume
   if (muteMode === "pause" && speechSynthesis.paused && !isMuted) {
     speechSynthesis.resume();
     return;
   }
 
-  // If something is still speaking, cancel it first
   if (speechSynthesis.speaking || speechSynthesis.pending) {
     speechSynthesis.cancel();
   }
 
   currentUtterance = new SpeechSynthesisUtterance(text);
   currentUtterance.lang = 'en-US';
-
-  // Optional: Clear ref when done
+  
   currentUtterance.onend = () => {
     currentUtterance = null;
   };
